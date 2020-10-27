@@ -3,6 +3,40 @@
 #include <corecrt_malloc.h>
 
 /**
+ * Вспомогательная функция для копирования элементов множества
+ */
+void Set::copy_set(const Set& other)
+{
+	//Создание копии списка из множества other
+	elem* curr = other.first_el;
+	while (curr)
+	{
+		auto* newel = new elem;
+		newel->value = curr->value;
+		if (last_el) last_el->next = newel;
+		else first_el = newel;
+		last_el = newel;
+		curr = curr->next;
+	}
+}
+
+/**
+ * Удаления списка элементов множества
+ */
+void Set::clear_set()
+{
+	elem* curr = first_el;
+	while (curr)
+	{
+		elem* del = curr;
+		curr = curr->next;
+		delete del;
+	}
+	first_el = last_el = nullptr;
+	cardinality = 0;
+}
+
+/**
  * Конструктор с параметром создает множество по массиву элементов
  * @param els - элементы массива, добавляемые во множество
  */
@@ -20,8 +54,24 @@ Set::Set(int* els)
 }
 
 /**
+ * Конструктор копирования
+ */
+Set::Set(const Set& other) : cardinality(other.cardinality)
+{
+	copy_set(other);
+}
+
+/**
+ * Деструктор. Вызывается при удалении экземпляра класса из памяти
+ */
+Set::~Set()
+{
+	clear_set();
+}
+
+/**
  * Метод добавления элемента в множество
- * @param elem - добавляемый элемент
+ * @param el - добавляемый элемент
  * @return возвращает true, если элемент добавлен и false, если элемент уже был во множестве
  */
 bool Set::add(int el)
@@ -64,6 +114,7 @@ bool Set::remove(int el)
 		delete del;
 		//Если первый элемент обнулился, то обнуляется и последний
 		if (!first_el) last_el = nullptr;
+		cardinality--;
 		return true;
 	}
 	//Устанавливаем указатель на первый элемент
@@ -86,6 +137,7 @@ bool Set::remove(int el)
 		//Если новый следующий элемент для текущего стал пуст, значит
 		//был удален последний элемент: обновляем соответствующий указатель.
 		if (!curr->next) last_el = curr;
+		cardinality--;
 		return true;
 	}
 	return false;
@@ -96,7 +148,7 @@ bool Set::remove(int el)
  * @param el проверяемый на наличие во множестве элемент
  * @return возвращает true, если элемент присутствует во множестве и false, в противном случае
  */
-bool Set::is_in_set(int el)
+bool Set::is_in_set(int el) const
 {
 	//Устанавливаем указатель на первый элемент
 	elem* curr = first_el;
@@ -109,4 +161,112 @@ bool Set::is_in_set(int el)
 		curr = curr->next;
 	}
 	return false;
+}
+
+/**
+ * Оператор присваивания
+ */
+Set& Set::operator=(const Set& other)
+{
+	//Проверка на самоприсваивание
+	if (this == &other) return *this;
+	clear_set();
+	cardinality = other.cardinality;
+	copy_set(other);
+	return *this;
+}
+
+/**
+ * Объединение множеств
+ * @param other - второе множество, с которым нужно произвести объединение
+ * @return - новое объединенное множество
+ */
+Set Set::operator+(const Set& other) const
+{
+	Set res = *this;
+	elem* curr = other.first_el;
+	while (curr)
+	{
+		res.add(curr->value);
+		curr = curr->next;
+	}
+	return res;
+}
+
+/**
+ * Оператор пересечения множеств
+ * @param other второе множества для поиска пересечения
+ * @return Пересечение множеств
+ */
+Set Set::operator*(const Set& other) const
+{
+	Set res;
+	elem* curr = (cardinality > other.cardinality) ? first_el : other.first_el;
+	const Set& ts = (cardinality > other.cardinality) ? other : *this;
+	while (curr)
+	{
+		if (ts.is_in_set(curr->value)) res.add(curr->value);
+		curr = curr->next;
+	}
+	return res;
+}
+
+/**
+ * Оператор для нахождения разности множеств
+ * @param other - вычитаемое множство
+ * @return Элементы множства, не содержащиеся в вычитаемом множестве
+ */
+Set Set::operator/(const Set& other) const
+{
+	Set res(*this);
+	elem* curr = first_el;
+	while (curr)
+	{
+		if (other.is_in_set(curr->value)) res.remove(curr->value);
+		curr = curr->next;
+	}
+	return res;
+}
+
+Set Set::operator-(const Set& other) const
+{
+	return (*this + other) / (*this * other);
+}
+
+/**
+ * Оператор индексирования (лево- и правосторонний)
+ * 
+ */
+int& Set::operator[](int index)
+{
+	if (index < 0 || index >= cardinality)
+		throw "Out of range";
+	int i = 0;
+	elem* curr = first_el;
+	while (curr)
+	{
+		if (i == index) return curr->value;
+		curr = curr->next;
+		i++;
+	}	
+}
+
+/**
+ * Оператор вывода на экран элементов множества
+ * @param out - выходной поток, куда осуществляется вывод
+ * @param set - множество, содержащее выводимые элементы
+ * @return - ссылка на выходной поток
+ */
+std::ostream& operator<<(std::ostream& out, const Set& set)
+{
+	Set::elem* curr = set.first_el;
+	if (!curr) out << "-";
+	while (curr)
+	{
+		out << curr->value;
+		if (curr->next) out << ", ";
+		curr = curr->next;
+	}
+	out << std::endl;
+	return out;
 }
