@@ -13,11 +13,9 @@ void main()
 	els[3] = 45;
 	els[4] = 45;
 	set<int> s1(els);
-	//cout << s1;
-	s1.showSet();
+	cout << s1;
 	set<int> emptySet;
-	//cout << emptySet;
-	emptySet.showSet();
+	cout << emptySet;
 	els[0] = 1;
 	els[1] = 12;
 	els[2] = 113;
@@ -25,23 +23,18 @@ void main()
 	els[4] = 45;
 	set<int> s5(els);
 	delete[] els;
-	//cout << s5;
-	s5.showSet();
+	cout << s5;
 	set<int> s2 = s1;
 	set<int> s3 = emptySet;
 	s3 = s2;
 	set<int> s4 = s1 + s5;
-	//cout << s4;
-	s4.showSet();
+	cout << s4;
 	set<int> s6 = s1 * s5;
-	//cout << s6;
-	s6.showSet();
+	cout << s6;
 	set<int> s7 = s1 / s5;
-	//cout << s7;
-	s7.showSet();
+	cout << s7;
 	set<int> s8 = s1 - s5;
-	//cout << s8;
-	s8.showSet();
+	cout << s8;
 	try {
 		cout << s8[1] << " ";
 		cout << s8[100] << " ";
@@ -58,6 +51,6 @@ void main()
 	dels[3] = 45.1;
 	dels[4] = 45.1;
 	set<double> ds1(dels);
-	ds1.showSet();
+	cout << ds1;
 	system("pause");
 }

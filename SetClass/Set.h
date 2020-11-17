@@ -52,8 +52,8 @@ public:
 	T& operator[](int index);
 
 	//Вывод элементов множества
-	//friend std::ostream& operator<<(std::ostream& out, const set<T>& set);
-	void showSet();
+	template <typename T2>
+	friend std::ostream& operator<<(std::ostream& out, const set<T2>& set);
 };
 
 #include <corecrt_malloc.h>
@@ -327,7 +327,7 @@ T& set<T>::operator[](int index)
  * @param set - множество, содержащее выводимые элементы
  * @return - ссылка на выходной поток
  */
-/*template <typename T>
+template <typename T>
 std::ostream& operator<<(std::ostream& out, const set<T>& s)
 {
 	typename set<T>::elem* curr = s.first_el;
@@ -340,17 +340,4 @@ std::ostream& operator<<(std::ostream& out, const set<T>& s)
 	}
 	out << std::endl;
 	return out;
-}*/
-template <typename T>
-void set<T>::showSet()
-{
-	elem* curr = first_el;
-	if (!curr) std::cout << "-";
-	while (curr)
-	{
-		std::cout << curr->value;
-		if (curr->next) std::cout << ", ";
-		curr = curr->next;
-	}
-	std::cout << std::endl;
 }
